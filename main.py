@@ -23,7 +23,7 @@ class Simulation(tk.Canvas):
         super().__init__(_parent, background="black",width=self.size[0] ,height=self.size[1])
         self.pack(fill=tk.BOTH, side="left", expand=True)
 
-        self.b1 = Bloc(1,-1, 400, 100, self)
+        self.b1 = Bloc(1,-1, 400, 50, self)
         self.b2 = Bloc(1, 0, 200, 50, self)
 
         self.ec = 1/2*(self.b1.m*self.b1.v**2+self.b2.m*self.b2.v**2)
@@ -39,17 +39,17 @@ class Simulation(tk.Canvas):
 
         self.b1.move()
         self.b2.move()
+        mc = self.b1.m*self.b1.v +self.b2.m*self.b2.v
+        ec = self.ec
         if self.b2.pos+self.b2.size >= self.b1.pos:
             self.p.chocs += 1
 
-            mc = self.b1.m*self.b1.v +self.b2.m*self.b2.v
             m1, m2 = self.b1.m, self.b2.m
-            ec = self.ec
 
-            self.b2.v = ((2*mc*sqrt(m1/m2)-sqrt(8*ec*(m2/m1+1)-4*mc**2))/((m1/m2)+1))/sqrt(m2)
-            self.b1.V = (mc-m2*self.b2.v)/m1
-            print(self.p.chocs)
 
+            self.b1.v = (sqrt(m1/m2)*mc - sqrt((mc**2)*(-3*(m1/m2)-4) + 8*ec*((m1/m2)+1)))/(2*((m1/m2)+1)*sqrt(m1))
+            self.b2.v = (mc-m1*self.b1.v)/m2
+        print(self.b1.v, self.b2.v, mc, ec)
 
         self.b1.draw()
         self.b2.draw()
@@ -74,6 +74,7 @@ class Bloc():
         if self.pos <= 0:
             self.v *= -1
             self.c.p.chocs +=1
+
         self.pos += self.v
 
 root = tk.Tk()
