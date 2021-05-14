@@ -39,17 +39,17 @@ class Simulation(tk.Canvas):
 
         self.b1.move()
         self.b2.move()
-        mc = self.b1.m*self.b1.v +self.b2.m*self.b2.v
-        ec = self.ec
-        if self.b2.pos+self.b2.size >= self.b1.pos:
+
+        if self.b2.pos+self.b2.size >= self.b1.pos-5:
             self.p.chocs += 1
 
             m1, m2 = self.b1.m, self.b2.m
+            mc = self.b1.m*self.b1.v +self.b2.m*self.b2.v
+            ec = self.ec
 
-
-            self.b1.v = (sqrt(m1/m2)*mc - sqrt((mc**2)*(-3*(m1/m2)-4) + 8*ec*((m1/m2)+1)))/(2*((m1/m2)+1)*sqrt(m1))
+            self.b1.v = (2*sqrt(m1/m2)*mc + sqrt((mc**2)*-4 + 8*ec*((m1/m2)+1)))/(2*((m1/m2)+1)*sqrt(m1))
             self.b2.v = (mc-m1*self.b1.v)/m2
-        print(self.b1.v, self.b2.v, mc, ec)
+            print(self.p.chocs)
 
         self.b1.draw()
         self.b2.draw()
@@ -74,6 +74,7 @@ class Bloc():
         if self.pos <= 0:
             self.v *= -1
             self.c.p.chocs +=1
+            print(self.c.p.chocs)
 
         self.pos += self.v
 
