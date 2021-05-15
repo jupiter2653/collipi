@@ -23,8 +23,8 @@ class Simulation(tk.Canvas):
         super().__init__(_parent, background="black",width=self.size[0] ,height=self.size[1])
         self.pack(fill=tk.BOTH, side="left", expand=True)
 
-        self.b1 = Bloc(1,-1, 400, 50, self)
-        self.b2 = Bloc(1, 0, 200, 50, self)
+        self.b1 = Bloc(1000000, -0.1, 500, 100, self)
+        self.b2 = Bloc(1, 0, 200, 100, self)
 
         self.ec = 1/2*(self.b1.m*self.b1.v**2+self.b2.m*self.b2.v**2)
 
@@ -37,10 +37,8 @@ class Simulation(tk.Canvas):
         self.delete(self.l)
         self. l = self.create_line(0, self.liney, self.size[0], self.liney, fill="white")
 
-        self.b1.move()
-        self.b2.move()
 
-        if self.b2.pos+self.b2.size >= self.b1.pos-5:
+        if self.b2.pos+self.b2.size >= self.b1.pos:
             self.p.chocs += 1
 
             m1, m2 = self.b1.m, self.b2.m
@@ -51,9 +49,12 @@ class Simulation(tk.Canvas):
             self.b2.v = (mc-m1*self.b1.v)/m2
             print(self.p.chocs)
 
+        self.b1.move()
+        self.b2.move()
+
         self.b1.draw()
         self.b2.draw()
-        self.after(10,self.drawSim)
+        self.after(1,self.drawSim)
 
 class Bloc():
     """Moving bloc"""
@@ -77,6 +78,8 @@ class Bloc():
             print(self.c.p.chocs)
 
         self.pos += self.v
+
+
 
 root = tk.Tk()
 main = Main(root)
