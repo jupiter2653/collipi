@@ -4,11 +4,11 @@ from math import sqrt, log
 class Main(tk.Frame):
     """Main frame"""
 
-    def __init__(self, window , _d, _dt, **kwargs):
+    def __init__(self, window , _d, _dt, _circle, **kwargs):
         tk.Frame.__init__(self, window, **kwargs)
         self.pack(fill=tk.BOTH, expand=True)
         self.sim = Simulation(self, _d, _dt)
-        self.graph = Graph(self)
+        self.graph = Graph(self,_circle)
         self.chocs = 0
 
 
@@ -16,7 +16,7 @@ class Main(tk.Frame):
 class Graph(tk.Canvas):
     """Representation"""
 
-    def __init__(self, _parent):
+    def __init__(self, _parent, _circle):
         self.size = 480
         self.p = _parent
         super().__init__(_parent, background="black",width=self.size ,height=self.size)
@@ -26,17 +26,17 @@ class Graph(tk.Canvas):
         self.v = (self.p.b1.v, self.p.b2.v)
         self.s = -self.r/(self.v[0]*sqrt(self.p.b1.m))
         self.t = self.create_text(self.size/2,15,text="0",anchor=tk.CENTER,fill="white",font=('Times', '12'))
+        self.circle = _circle
 
     def update(self):
-        id = self.create_line(self.size/2 + self.v[0]*sqrt(self.p.b1.m)*self.s,
-                            self.size/2 + self.v[1]*sqrt(self.p.b2.m)*self.s,
-                            self.size/2 + self.p.b1.v*sqrt(self.p.b1.m)*self.s,
-                            self.size/2 + self.p.b2.v*sqrt(self.p.b2.m)*self.s,fill="white")
-
-        self.v = (self.p.b1.v, self.p.b2.v)
+        if self.circle:
+            id = self.create_line(self.size/2 + self.v[0]*sqrt(self.p.b1.m)*self.s,
+                                self.size/2 + self.v[1]*sqrt(self.p.b2.m)*self.s,
+                                self.size/2 + self.p.b1.v*sqrt(self.p.b1.m)*self.s,
+                                self.size/2 + self.p.b2.v*sqrt(self.p.b2.m)*self.s,fill="white")
+            self.v = (self.p.b1.v, self.p.b2.v)
         self.delete(self.t)
         self.t = self.create_text(self.size/2,15,text=str(self.p.chocs),anchor=tk.CENTER,fill="white",font=('Times', '12'))
-        return id
 
 
 class Simulation(tk.Canvas):
@@ -110,14 +110,14 @@ class Bloc():
     def move(self,dt):
         if self.pos <= 0:
             self.v *= -1
-            self.c.p.chocs +=1
+            self.c.p.chocs += 1
             self.c.p.graph.update()
         self.pos += self.v*dt
 
     def getSize(self):
-        return 10*2**(log(self.m, 100))
+        return 20*2**(log(self.m, 100))
 
 
 root = tk.Tk()
-main = Main(root, 4, 0.001)
+main = Main(root, 4, 0.01, False)
 main.mainloop()
