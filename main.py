@@ -50,7 +50,7 @@ class Simulation(tk.Canvas):
         super().__init__(_parent, background="black",width=self.size[0] ,height=self.size[1])
         self.pack(fill=tk.BOTH, side="left", expand=True)
 
-        self.p.b1 = Bloc(100, -0.1, 200, 100, self)
+        self.p.b1 = Bloc(1000000, -0.1, 200, 100, self)
         self.p.b2 = Bloc(1, 0, 50, 100, self)
 
         self.b1 = self.p.b1
@@ -67,24 +67,26 @@ class Simulation(tk.Canvas):
         self.delete(self.l)
         self. l = self.create_line(0, self.liney, self.size[0], self.liney, fill="white")
 
-
-        if self.b2.pos+self.b2.size >= self.b1.pos:
-            self.p.chocs += 1
-
-            m1, m2 = self.b1.m, self.b2.m
-            mc = self.b1.m*self.b1.v +self.b2.m*self.b2.v
-            ec = self.sc
-
-            self.b1.v = (2*sqrt(m1/m2)*mc + sqrt((mc**2)*-4 + 8*ec*((m1/m2)+1)))/(2*((m1/m2)+1)*sqrt(m1))
-            self.b2.v = (mc-m1*self.b1.v)/m2
-            self.p.graph.update()
-
-        self.b1.move()
-        self.b2.move()
+        self.simulate(0.01)
 
         self.b1.draw()
         self.b2.draw()
         self.after(1,self.drawSim)
+
+    def simulate(self,dt):
+        for i in range(int(1/dt)):
+            if self.b2.pos+self.b2.size >= self.b1.pos:
+                self.p.chocs += 1
+
+                m1, m2 = self.b1.m, self.b2.m
+                mc = self.b1.m*self.b1.v +self.b2.m*self.b2.v
+                ec = self.sc
+
+                self.b1.v = (2*sqrt(m1/m2)*mc + sqrt((mc**2)*-4 + 8*ec*((m1/m2)+1)))/(2*((m1/m2)+1)*sqrt(m1))
+                self.b2.v = (mc-m1*self.b1.v)/m2
+                self.p.graph.update()
+            self.b1.move(dt)
+            self.b2.move(dt)
 
 class Bloc():
     """Moving bloc"""
@@ -101,13 +103,13 @@ class Bloc():
         self.c.delete(self.id)
         self.id = self.c.create_rectangle(self.pos, self.c.liney, self.pos+self.size, self.c.liney-self.size, outline="white",fill="pink")
 
-    def move(self):
+    def move(self,dt):
         if self.pos <= 0:
             self.v *= -1
             self.c.p.chocs +=1
             self.c.p.graph.update()
 
-        self.pos += self.v
+        self.pos += self.v*dt
 
 
 
