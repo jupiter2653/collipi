@@ -1,13 +1,13 @@
 import tkinter as tk
-from math import sqrt, log
+from math import sqrt, log, cos, sin, pi
 
 class Main(tk.Frame):
     """Main frame"""
 
-    def __init__(self, window , _d, _dt, _circle, **kwargs):
+    def __init__(self, window , _d, _dt, _circle, _sparkles, **kwargs):
         tk.Frame.__init__(self, window, **kwargs)
         self.pack(fill=tk.BOTH, expand=True)
-        self.sim = Simulation(self, _d, _dt)
+        self.sim = Simulation(self, _d, _dt, _sparkles)
         self.graph = Graph(self,_circle)
         self.chocs = 0
 
@@ -42,13 +42,16 @@ class Graph(tk.Canvas):
 class Simulation(tk.Canvas):
     """docstring for Simulation."""
 
-    def __init__(self, _parent, _d, _dt):
+    def __init__(self, _parent, _d, _dt, _sparkles):
         self.size = (800,480)
         self.p = _parent
         self.liney = self.size[1]-100
         self.dt = _dt
         self.d = _d
         self.l = 0
+        self.size0 = 50
+        self.doSparkles = _sparkles
+        self.sparkleList = []
 
         super().__init__(_parent, background="black",width=self.size[0] ,height=self.size[1])
         self.pack(fill=tk.BOTH, side="left", expand=True)
@@ -75,6 +78,10 @@ class Simulation(tk.Canvas):
 
         self.b1.draw()
         self.b2.draw()
+
+        for sparkle in self.sparkleList:
+            sparkle.draw()
+
         self.after(1,self.drawSim)
 
     def simulate(self,dt):
@@ -89,8 +96,17 @@ class Simulation(tk.Canvas):
                 self.b1.v = (2*sqrt(m1/m2)*mc + sqrt((mc**2)*-4 + 8*ec*((m1/m2)+1)))/(2*((m1/m2)+1)*sqrt(m1))
                 self.b2.v = (mc-m1*self.b1.v)/m2
                 self.p.graph.update()
+                self.sparkle(self.b1.pos)
+
             self.b1.move(dt)
             self.b2.move(dt)
+
+    def sparkle(self, x):
+        if self.doSparkles:
+            for o in [pi/4, 0, -pi/4, pi/2 ,3*pi/4, pi, -3*pi/4, -pi/2]:
+                self.sparkleList.append(Sparkle(x, o, "pink", self))
+            if len(self.sparkleList) >= 32:
+                self.sparkleList = self.sparkleList[:32]
 
 class Bloc():
     """Moving bloc"""
@@ -99,8 +115,8 @@ class Bloc():
         self.m = _m
         self.v = _v0
         self.pos = _pos0
-        self.size = self.getSize()
         self.c = _c
+        self.size = self.getSize()
         self.color = _color
         self.id = 0
 
@@ -113,12 +129,36 @@ class Bloc():
             self.v *= -1
             self.c.p.chocs += 1
             self.c.p.graph.update()
+            self.c.sparkle(0)
         self.pos += self.v*dt
 
     def getSize(self):
-        return 50*2**(log(self.m, 100))
+        return self.c.size0*2**(log(self.m, 100))
+
+
+
+class Sparkle():
+    """Glowing sparkle"""
+
+    def __init__(self, x, o, _color, _c):
+        d = 15
+        l = 5
+        self.color = _color
+        self.c = _c
+        self.lt = 100
+        y = _c.liney-self.c.size0/2
+        self.line = [x+d*cos(o), y-d*sin(o),x+(d+l)*cos(o),y-(d+l)*sin(o)]
+        self.id = 0
+
+    def draw(self):
+        self.lt -= 1
+        self.c.delete(self.id)
+        if self.lt >= 0:
+            self.id = self.c.create_line(*self.line, fill=self.color, width=2)
+        else:
+            self.c.sparkleList.remove(self)
 
 
 root = tk.Tk()
-main = Main(root, 1, 0.1, False)
+main = Main(root, 2, 0.1, True, True)
 main.mainloop()
