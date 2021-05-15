@@ -1,13 +1,13 @@
 import tkinter as tk
-from math import sqrt
+from math import sqrt, log
 
 class Main(tk.Frame):
     """Main frame"""
 
-    def __init__(self, window , **kwargs):
+    def __init__(self, window , _d, _dt, **kwargs):
         tk.Frame.__init__(self, window, **kwargs)
         self.pack(fill=tk.BOTH, expand=True)
-        self.sim = Simulation(self)
+        self.sim = Simulation(self, _d, _dt)
         self.graph = Graph(self)
         self.chocs = 0
 
@@ -19,39 +19,42 @@ class Graph(tk.Canvas):
     def __init__(self, _parent):
         self.size = 480
         self.p = _parent
-        super().__init__(_parent, background="white",width=self.size ,height=self.size)
+        super().__init__(_parent, background="black",width=self.size ,height=self.size)
         self.pack(fill=tk.BOTH, side="right", expand=True)
         self.r = 200
-        self.create_oval(self.size/2-self.r,self.size/2-self.r,self.size/2+self.r,self.size/2+self.r)
+        self.create_oval(self.size/2-self.r,self.size/2-self.r,self.size/2+self.r,self.size/2+self.r,outline="white")
         self.v = (self.p.b1.v, self.p.b2.v)
         self.s = -self.r/(self.v[0]*sqrt(self.p.b1.m))
+        self.t = self.create_text(self.size/2,15,text="0",anchor=tk.CENTER,fill="white",font=('Times', '12'))
 
     def update(self):
         id = self.create_line(self.size/2 + self.v[0]*sqrt(self.p.b1.m)*self.s,
                             self.size/2 + self.v[1]*sqrt(self.p.b2.m)*self.s,
                             self.size/2 + self.p.b1.v*sqrt(self.p.b1.m)*self.s,
-                            self.size/2 + self.p.b2.v*sqrt(self.p.b2.m)*self.s)
+                            self.size/2 + self.p.b2.v*sqrt(self.p.b2.m)*self.s,fill="white")
 
         self.v = (self.p.b1.v, self.p.b2.v)
-        print(self.p.chocs)
+        self.delete(self.t)
+        self.t = self.create_text(self.size/2,15,text=str(self.p.chocs),anchor=tk.CENTER,fill="white",font=('Times', '12'))
         return id
 
 
 class Simulation(tk.Canvas):
     """docstring for Simulation."""
 
-    def __init__(self, _parent):
+    def __init__(self, _parent, _d, _dt):
         self.size = (800,480)
         self.p = _parent
         self.liney = self.size[1]-100
-
+        self.dt = _dt
+        self.d = _d
         self.l = 0
 
         super().__init__(_parent, background="black",width=self.size[0] ,height=self.size[1])
         self.pack(fill=tk.BOTH, side="left", expand=True)
 
-        self.p.b1 = Bloc(1000000, -0.1, 200, 100, self)
-        self.p.b2 = Bloc(1, 0, 50, 100, self)
+        self.p.b1 = Bloc(100**self.d, -0.1, 300, self)
+        self.p.b2 = Bloc(1, 0, 100, self)
 
         self.b1 = self.p.b1
         self.b2 = self.p.b2
@@ -68,7 +71,7 @@ class Simulation(tk.Canvas):
         self. l = self.create_line(0, self.liney, self.size[0], self.liney, fill="white")
 
         if self.b2.pos <= self.size[0]+10:
-            self.simulate(0.1)
+            self.simulate(self.dt)
 
         self.b1.draw()
         self.b2.draw()
@@ -92,11 +95,11 @@ class Simulation(tk.Canvas):
 class Bloc():
     """Moving bloc"""
 
-    def __init__(self, _m, _v0, _pos0, _size, _c):
+    def __init__(self, _m, _v0, _pos0, _c):
         self.m = _m
         self.v = _v0
         self.pos = _pos0
-        self.size = _size
+        self.size = self.getSize()
         self.c = _c
         self.id = 0
 
@@ -109,11 +112,12 @@ class Bloc():
             self.v *= -1
             self.c.p.chocs +=1
             self.c.p.graph.update()
-
         self.pos += self.v*dt
 
+    def getSize(self):
+        return 10*2**(log(self.m, 100))
 
 
 root = tk.Tk()
-main = Main(root)
+main = Main(root, 4, 0.001)
 main.mainloop()
