@@ -67,7 +67,8 @@ class Simulation(tk.Canvas):
         self.delete(self.l)
         self. l = self.create_line(0, self.liney, self.size[0], self.liney, fill="white")
 
-        self.simulate(0.01)
+        if self.b2.pos <= self.size[0]+10:
+            self.simulate(0.1)
 
         self.b1.draw()
         self.b2.draw()
