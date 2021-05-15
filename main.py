@@ -53,8 +53,8 @@ class Simulation(tk.Canvas):
         super().__init__(_parent, background="black",width=self.size[0] ,height=self.size[1])
         self.pack(fill=tk.BOTH, side="left", expand=True)
 
-        self.p.b1 = Bloc(100**self.d, -0.1, 300, self)
-        self.p.b2 = Bloc(1, 0, 100, self)
+        self.p.b1 = Bloc(100**self.d, -0.1, 300, self, "white")
+        self.p.b2 = Bloc(1, 0, 100, self, "red")
 
         self.b1 = self.p.b1
         self.b2 = self.p.b2
@@ -95,17 +95,18 @@ class Simulation(tk.Canvas):
 class Bloc():
     """Moving bloc"""
 
-    def __init__(self, _m, _v0, _pos0, _c):
+    def __init__(self, _m, _v0, _pos0, _c, _color):
         self.m = _m
         self.v = _v0
         self.pos = _pos0
         self.size = self.getSize()
         self.c = _c
+        self.color = _color
         self.id = 0
 
     def draw(self):
         self.c.delete(self.id)
-        self.id = self.c.create_rectangle(self.pos, self.c.liney, self.pos+self.size, self.c.liney-self.size, outline="white",fill="pink")
+        self.id = self.c.create_rectangle(self.pos, self.c.liney, self.pos+self.size, self.c.liney-self.size,fill=self.color)
 
     def move(self,dt):
         if self.pos <= 0:
@@ -115,9 +116,9 @@ class Bloc():
         self.pos += self.v*dt
 
     def getSize(self):
-        return 20*2**(log(self.m, 100))
+        return 50*2**(log(self.m, 100))
 
 
 root = tk.Tk()
-main = Main(root, 4, 0.01, False)
+main = Main(root, 1, 0.1, False)
 main.mainloop()
