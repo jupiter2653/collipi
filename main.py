@@ -8,7 +8,34 @@ class Main(tk.Frame):
         tk.Frame.__init__(self, window, **kwargs)
         self.pack(fill=tk.BOTH, expand=True)
         self.sim = Simulation(self)
+        self.graph = Graph(self)
         self.chocs = 0
+
+
+
+class Graph(tk.Canvas):
+    """Representation"""
+
+    def __init__(self, _parent):
+        self.size = 480
+        self.p = _parent
+        super().__init__(_parent, background="white",width=self.size ,height=self.size)
+        self.pack(fill=tk.BOTH, side="right", expand=True)
+        self.r = 200
+        self.create_oval(self.size/2-self.r,self.size/2-self.r,self.size/2+self.r,self.size/2+self.r)
+        self.v = (self.p.b1.v, self.p.b2.v)
+        self.s = -self.r/(self.v[0]*sqrt(self.p.b1.m))
+
+    def update(self):
+        id = self.create_line(self.size/2 + self.v[0]*sqrt(self.p.b1.m)*self.s,
+                            self.size/2 + self.v[1]*sqrt(self.p.b2.m)*self.s,
+                            self.size/2 + self.p.b1.v*sqrt(self.p.b1.m)*self.s,
+                            self.size/2 + self.p.b2.v*sqrt(self.p.b2.m)*self.s)
+
+        self.v = (self.p.b1.v, self.p.b2.v)
+        print(self.p.chocs)
+        return id
+
 
 class Simulation(tk.Canvas):
     """docstring for Simulation."""
@@ -23,10 +50,13 @@ class Simulation(tk.Canvas):
         super().__init__(_parent, background="black",width=self.size[0] ,height=self.size[1])
         self.pack(fill=tk.BOTH, side="left", expand=True)
 
-        self.b1 = Bloc(1000000, -0.1, 500, 100, self)
-        self.b2 = Bloc(1, 0, 200, 100, self)
+        self.p.b1 = Bloc(100, -0.1, 200, 100, self)
+        self.p.b2 = Bloc(1, 0, 50, 100, self)
 
-        self.ec = 1/2*(self.b1.m*self.b1.v**2+self.b2.m*self.b2.v**2)
+        self.b1 = self.p.b1
+        self.b2 = self.p.b2
+
+        self.sc = 1/2*(self.b1.m*self.b1.v**2+self.b2.m*self.b2.v**2)
 
         self.drawSim()
 
@@ -43,11 +73,11 @@ class Simulation(tk.Canvas):
 
             m1, m2 = self.b1.m, self.b2.m
             mc = self.b1.m*self.b1.v +self.b2.m*self.b2.v
-            ec = self.ec
+            ec = self.sc
 
             self.b1.v = (2*sqrt(m1/m2)*mc + sqrt((mc**2)*-4 + 8*ec*((m1/m2)+1)))/(2*((m1/m2)+1)*sqrt(m1))
             self.b2.v = (mc-m1*self.b1.v)/m2
-            print(self.p.chocs)
+            self.p.graph.update()
 
         self.b1.move()
         self.b2.move()
@@ -75,7 +105,7 @@ class Bloc():
         if self.pos <= 0:
             self.v *= -1
             self.c.p.chocs +=1
-            print(self.c.p.chocs)
+            self.c.p.graph.update()
 
         self.pos += self.v
 
