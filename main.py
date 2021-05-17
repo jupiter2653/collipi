@@ -4,10 +4,10 @@ from math import sqrt, log, cos, sin, pi
 class Main(tk.Frame):
     """Main frame"""
 
-    def __init__(self, window , _d, _dt, _circle, _sparkles, **kwargs):
+    def __init__(self, window , _s0, _d, _dt, _circle, _sparkles, **kwargs):
         tk.Frame.__init__(self, window, **kwargs)
         self.pack(fill=tk.BOTH, expand=True)
-        self.sim = Simulation(self, _d, _dt, _sparkles)
+        self.sim = Simulation(self, _s0,_d, _dt, _sparkles)
         self.graph = Graph(self,_circle)
         self.chocs = 0
 
@@ -42,14 +42,14 @@ class Graph(tk.Canvas):
 class Simulation(tk.Canvas):
     """docstring for Simulation."""
 
-    def __init__(self, _parent, _d, _dt, _sparkles):
+    def __init__(self, _parent, _s0, _d, _dt, _sparkles):
         self.size = (800,480)
         self.p = _parent
         self.liney = self.size[1]-100
         self.dt = _dt
         self.d = _d
         self.l = 0
-        self.size0 = 50
+        self.size0 = _s0
         self.doSparkles = _sparkles
         self.sparkleList = []
 
@@ -160,5 +160,5 @@ class Sparkle():
 
 
 root = tk.Tk()
-main = Main(root, 2, 0.1, True, True)
+main = Main(root, 20, 5, 0.001, False, False)
 main.mainloop()
