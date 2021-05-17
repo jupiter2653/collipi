@@ -31,9 +31,9 @@ class Graph(tk.Canvas):
     def update(self):
         if self.circle:
             id = self.create_line(self.size/2 + self.v[0]*sqrt(self.p.b1.m)*self.s,
-                                self.size/2 + self.v[1]*sqrt(self.p.b2.m)*self.s,
+                                self.size/2 - self.v[1]*sqrt(self.p.b2.m)*self.s,
                                 self.size/2 + self.p.b1.v*sqrt(self.p.b1.m)*self.s,
-                                self.size/2 + self.p.b2.v*sqrt(self.p.b2.m)*self.s,fill="white")
+                                self.size/2 - self.p.b2.v*sqrt(self.p.b2.m)*self.s,fill="white")
             self.v = (self.p.b1.v, self.p.b2.v)
         self.delete(self.t)
         self.t = self.create_text(self.size/2,15,text=str(self.p.chocs),anchor=tk.CENTER,fill="white",font=('Times', '12'))
